@@ -31,7 +31,6 @@ It also includes a Grad-CAM visualization to highlight the most important region
 ## GradCAM
 A Grad-CAM class (GradCAM) is implemented to visualize which regions of the MRI scan the model focuses on. Key steps:
 
-### Hooks: Forward and backward hooks capture both the activations and gradients in the chosen layer.
 ### CAM Generation: Forward pass on a chosen input and target class.
 - Backpropagate gradients for that class.
 - Compute a weighted average of the gradients to create a heatmap.
