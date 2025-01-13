@@ -14,7 +14,13 @@ It also includes a Grad-CAM visualization to highlight the most important region
 
 
 ## Preprocessing
-
+### Parquet Loading
+- The script uses pandas.read_parquet to load the training and testing data.
+### Dictionary to Image
+- A custom function, dict_to_image, extracts the raw bytes from each record, decodes them using OpenCV, and converts them to grayscale arrays.
+### DataFrame Transformation
+- After decoding, the script drops the original byte-column and replaces it with a new column named img_arr.
+- Sample rows and images are visualized for sanity checks.
 
 ## Model
 
@@ -23,6 +29,13 @@ It also includes a Grad-CAM visualization to highlight the most important region
 
 
 ## GradCAM
+A Grad-CAM class (GradCAM) is implemented to visualize which regions of the MRI scan the model focuses on. Key steps:
 
+### Hooks: Forward and backward hooks capture both the activations and gradients in the chosen layer.
+### CAM Generation: Forward pass on a chosen input and target class.
+- Backpropagate gradients for that class.
+- Compute a weighted average of the gradients to create a heatmap.
+- Resize and overlay the heatmap onto the original image.
+This helps in interpreting the model’s decision-making process by highlighting relevant regions in MRI scans.
 
 
