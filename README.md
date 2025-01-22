@@ -10,12 +10,12 @@ It also includes a Grad-CAM visualization to highlight the most important region
 ![Obrázek gradcam](https://github.com/user-attachments/assets/78fc49ef-90c8-45aa-b49c-ab0953793cd8)
 
 ## Maintainers
-Lucie Semeráková (seml04@vse.cz)
-Martina Maslíková (masm35@vse.cz)
-Štěpán Fojtík (fojs00@vse.cz)
-Ivana Žůrková (zuri00@vse.cz)
-Vojta Kraus (xkrav00@vse.cz)
-Tomáš Hejl (hejt02@vse.cz)
+Lucie Semeráková (seml04@vse.cz)  
+Martina Maslíková (masm35@vse.cz)  
+Štěpán Fojtík (fojs00@vse.cz)  
+Ivana Žůrková (zuri00@vse.cz)  
+Vojta Kraus (xkrav00@vse.cz)  
+Tomáš Hejl (hejt02@vse.cz)  
 
 
 ## Project
