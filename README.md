@@ -14,8 +14,14 @@ Tomáš Hejl (hejt02@vse.cz)
 
 ## Project
 This project consists of 2 primary notebooks
-- **main.ipynb** is used to Load - Create model - Train - Evaluate - Apply GradCAM and apply it on existing MRI image.
-- **models_compare.ipynb** is used to evaluate existing models that we as a group tried to implement and rank them, how well they scored in this classification task.
+- **main.ipynb** is used to:
+    - Load
+    - Create model
+    - Train
+    - Evaluate
+    - Create GradCAM and apply it on existing MRI image.
+
+- **models_compare.ipynb** is primarly used to evaluate existing models that we as a group tried to implement and rank them, how well they scored.
 
 ## Data 
 MRI scans images are in the parquet format and we had to change it into other forms, that are usable and understandable for CNN to successfully train. Parquet data example:
