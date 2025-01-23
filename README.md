@@ -125,7 +125,7 @@ plt.imshow(input_image.squeeze(0).cpu(), cmap='gray')
 plt.imshow(cam_map, cmap='jet', alpha=0.5)
 plt.title('Grad-CAM Overlay')
 plt.show()
-
+```
 
 ## Evaluation
 
