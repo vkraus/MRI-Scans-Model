@@ -177,3 +177,14 @@ plt.show()
 
 ## Evaluation
 
+## Installation Instructions
+To set up the environment, install the required dependencies listed in `requirements.txt` by running:
+```
+pip install -r requirements.txt
+```
+
+## Usage Instructions
+To use the model, open `main.ipynb` and follow the steps outlined in the notebook to load data, create the model, train it, and evaluate its performance.
+
+## Contributing Guidelines
+If you would like to contribute to this project, please fork the repository and submit a pull request with your changes. Ensure that your code adheres to the project's coding standards.
