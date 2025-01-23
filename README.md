@@ -51,14 +51,81 @@ Based on the type of dataset we got, the first step is to preprocess it... **tbc
 ## Training
 
 
-## GradCAM
-A Grad-CAM class (GradCAM) is implemented to visualize which regions of the MRI scan the model focuses on. Key steps:
+## Grad-CAM Implementation for Visualizing Neural Networks
 
-### CAM Generation: Forward pass on a chosen input and target class.
-- Backpropagate gradients for that class.
-- Compute a weighted average of the gradients to create a heatmap.
-- Resize and overlay the heatmap onto the original image.
-This helps in interpreting the model’s decision-making process by highlighting relevant regions in MRI scans.
+This implementation demonstrates the use of **Grad-CAM** (Gradient-weighted Class Activation Mapping) to interpret the decision-making process of convolutional neural networks during image classification. Grad-CAM highlights the regions in an input image that are most relevant for predicting a specific class, making it particularly useful for medical imaging applications, such as classifying the stages of dementia using MRI scans.
+
+---
+
+### How It Works
+
+1. **Layer Hooking**:
+   The `GradCAM` class hooks into a specified layer of the model (e.g., a convolutional layer) to capture both the activations and gradients during forward and backward passes.
+   
+2. **Generating Grad-CAM Heatmaps**:
+   - The target class output is used to compute gradients with respect to the activations of the selected layer.
+   - A weighted average of the gradients is applied to the activations to produce a class-specific activation map.
+   - The resulting heatmap is normalized and optionally adjusted for class-specific weighting.
+
+3. **Visualizing Grad-CAM Results**:
+   - The Grad-CAM heatmap is overlaid onto the original image using a color map, providing a clear visual representation of the regions critical for the model's classification.
+
+---
+
+### Class-Specific Weighting
+
+Each class (e.g., *Very Demented*, *Mild Demented*, etc.) is assigned a weight to enhance or dampen the importance of the regions associated with that class. These weights help tailor the visualization to specific use cases and emphasize relevant features.
+
+---
+
+### Example Usage
+
+This implementation includes a demonstration of Grad-CAM applied to real-world data:
+
+1. **Single Image Example**
+   - Generate a Grad-CAM heatmap for a single input image and overlay it onto the original image.
+
+2. **Batch Visualization**
+   - Test Grad-CAM on multiple randomly selected images from the dataset and visualize their results in a grid format.
+
+---
+
+### Output Examples
+
+- **Original Image with Grad-CAM Heatmap**:
+  The code overlays the Grad-CAM activation map (in a `jet` colormap) on top of the grayscale input image.
+
+- **Batch Heatmap Visualization**:
+  A set of images from the test dataset, each showing its corresponding Grad-CAM overlay with the predicted class label.
+
+---
+
+### Key Features
+
+- Modular implementation with the `GradCAM` class, allowing it to be reused with any PyTorch model.
+- Support for class-specific enhancements through configurable weights.
+- Easy visualization of Grad-CAM overlays for both individual and batch inputs.
+
+---
+
+### Example Code Snippet
+
+```python
+# Initialize Grad-CAM for a specific convolutional layer
+grad_cam = GradCAM(model, model.conv2)
+
+# Generate Grad-CAM for a single test image
+input_image, label = test_dataset[0]
+input_tensor = input_image.unsqueeze(0).to(device)
+true_class = label.item()
+cam_map = grad_cam.generate_cam(input_tensor, true_class)
+
+# Visualize the heatmap overlay
+plt.imshow(input_image.squeeze(0).cpu(), cmap='gray')
+plt.imshow(cam_map, cmap='jet', alpha=0.5)
+plt.title('Grad-CAM Overlay')
+plt.show()
+
 
 ## Evaluation
 
