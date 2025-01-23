@@ -45,11 +45,75 @@ Based on the type of dataset we got, the first step is to preprocess it... **tbc
 - After decoding, the script drops the original byte-column and replaces it with a new column named img_arr.
 - Sample rows and images are visualized for sanity checks.
 
-## Model
+## Models
+
+### Model Descriptions
+
+**BaselineCNN**:  
+A baseline CNN (`BaselineCNN`) with two convolutional layers, batch normalization, max pooling, and fully connected layers, designed for general image classification tasks.
+
+---
+
+**BaselineCNN_WeightedRandomSample**:  
+An extended CNN (`BaselineCNN_WeightedRandomSample`) that incorporates weighted random sampling to prioritize specific classes during training.
+
+---
+
+**BaselineCNN_HEM**:  
+A variant of the baseline CNN (`BaselineCNN_HEM`) designed to emphasize hard example mining (HEM), allowing the model to focus on more challenging samples.
+
+---
+
+**BaselineCNN_CE**:  
+An enhanced CNN (`BaselineCNN_CE`) with added dropout layers for improved generalization and reduced overfitting during training.
+
+---
+
+**BaselineCNN_CE_Dropped**:  
+A modified version of `BaselineCNN_CE` (`BaselineCNN_CE_Dropped`) that removes certain dropout layers, aiming to retain feature learning capacity and improve accuracy.
+
+---
+
+**BaselineCNN_CE_Drop01**:  
+A refined version of the dropout-enhanced CNN (`BaselineCNN_CE_Drop01`) with minimal dropout probability (`p=0.1`), balancing generalization and overfitting.
+
+---
+
+**BaselineCNN_CE_ConvAdd**:  
+An advanced CNN (`BaselineCNN_CE_ConvAdd`) that extends `BaselineCNN_CE` with an additional convolutional layer for better feature extraction and classification performance.
+
+---
+
+**BaselineCNN_CE_ConvAdded_DropMinus**:  
+The most advanced CNN (`BaselineCNN_CE_ConvAdded_DropMinus`) in the baseline family, featuring multiple convolutional layers and no dropout, achieving superior accuracy.
+
+---
+
+**DifferentOdBaseline**:  
+A simplified CNN (`DifferentOdBaseline`) with fewer parameters, making it ideal for smaller datasets or faster training needs.
+
+---
+
+**StudyModel_1**:  
+A dual-path architecture (`StudyModel_1`) combining two parallel convolutional networks that merge their outputs for advanced feature extraction and classification.
+
+---
+
+**KerasLikeModel**:  
+A CNN (`KerasLikeModel`) inspired by Keras-style sequential networks, featuring multiple convolutional layers, batch normalization, and dropout layers for robust and flexible classification.
+
+---
+
+**ModelOdGPT**:  
+A moderately complex CNN (`ModelOdGPT`) with three convolutional layers and dropout, designed with GPT assistance for general-purpose tasks.
+
+---
+
+**AdvancedCNN**:  
+A ResNet-50-based model (`AdvancedCNN`) fine-tuned for grayscale image classification, with a modified first convolutional layer and a frozen backbone for transfer learning.
 
 
-## Training
-## Training the Model
+## Training the Models
 
 This code defines a training pipeline for a neural network model using a custom dataset and dataloader. It implements a simple training loop with support for tracking losses and updating model parameters using backpropagation.
 
@@ -159,10 +223,3 @@ plt.show()
 
 ## Evaluation
 
-**BaselineCNN**:  
-A baseline CNN (`BaselineCNN`) with two convolutional layers, batch normalization, max pooling, and fully connected layers, designed for general image classification tasks.
-
----
-
-**BaselineCNN_WeightedRandomSample**:  
-An extended CNN (`BaselineCNN_WeightedRandomSample`) that incorporates weighted random sampling to prioritize specific classes during training.
