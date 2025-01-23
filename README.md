@@ -49,7 +49,37 @@ Based on the type of dataset we got, the first step is to preprocess it... **tbc
 
 
 ## Training
+## Training the Model
 
+This code defines a training pipeline for a neural network model using a custom dataset and dataloader. It implements a simple training loop with support for tracking losses and updating model parameters using backpropagation.
+
+---
+
+### Key Steps:
+1. **Dataset and DataLoader**:  
+   A custom dataset (`ImageDataset`) is wrapped into a DataLoader for batch processing.
+   
+2. **Training Loop**:  
+   - Computes the loss using `CrossEntropyLoss`.
+   - Updates the model parameters using an optimizer (`AdamW` in this case).
+   - Tracks and averages the loss over epochs.
+
+3. **Model Initialization**:  
+   A baseline CNN (`BaselineCNN`) is instantiated and trained over the specified number of epochs.
+
+---
+
+### Example Code:
+```python
+# Initialize dataset and dataloader
+train_dataset = ImageDataset(df_train)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+# Train the model
+model = BaselineCNN()
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+model, train_losses = train_model(model, train_loader, optimizer)
+```
 
 ## Grad-CAM Implementation for Visualizing Neural Networks
 
@@ -129,4 +159,10 @@ plt.show()
 
 ## Evaluation
 
+**BaselineCNN**:  
+A baseline CNN (`BaselineCNN`) with two convolutional layers, batch normalization, max pooling, and fully connected layers, designed for general image classification tasks.
 
+---
+
+**BaselineCNN_WeightedRandomSample**:  
+An extended CNN (`BaselineCNN_WeightedRandomSample`) that incorporates weighted random sampling to prioritize specific classes during training.
