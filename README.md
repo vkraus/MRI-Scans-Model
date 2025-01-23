@@ -47,9 +47,7 @@ Based on the type of dataset we got, the first step is to preprocess it... **tbc
 
 ## Models
 
-### Model Descriptions
-
-**BaselineCNN**:  
+**BaselineCNN** 
 A baseline CNN (`BaselineCNN`) with two convolutional layers, batch normalization, max pooling, and fully connected layers, designed for general image classification tasks.
 - An extended CNN (`BaselineCNN_WeightedRandomSample`) that incorporates weighted random sampling to prioritize specific classes during training.
 - A variant of the baseline CNN (`BaselineCNN_HEM`) designed to emphasize hard example mining (HEM), allowing the model to focus on more challenging samples.
