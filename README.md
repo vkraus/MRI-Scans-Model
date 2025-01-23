@@ -60,4 +60,6 @@ A Grad-CAM class (GradCAM) is implemented to visualize which regions of the MRI 
 - Resize and overlay the heatmap onto the original image.
 This helps in interpreting the model’s decision-making process by highlighting relevant regions in MRI scans.
 
+## Evaluation
+
 
