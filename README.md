@@ -137,7 +137,9 @@ This implementation includes a demonstration of Grad-CAM applied to real-world d
    - Test Grad-CAM on multiple randomly selected images from the dataset and visualize their results in a grid format.
 
 ---
-
+### GradCAM preview
+![GradCAM-preview](https://github.com/user-attachments/assets/f1def372-12ad-4f75-ae31-b8ca3cbc8441)
+---
 ### Output Examples
 
 - **Original Image with Grad-CAM Heatmap**:
