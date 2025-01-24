@@ -67,7 +67,7 @@ A moderately complex CNN (`ModelOdGPT`) with three convolutional layers and drop
 
 A ResNet-50-based model (`AdvancedCNN`) fine-tuned for grayscale image classification, with a modified first convolutional layer and a frozen backbone for transfer learning.
 
-An EfficientNet-B3 architecture (`EfficientNet-B3_50_epochs`) with pre-trained weights for transfer learning, custom classifier with 2 dropout layers (p=0.4), transitions from 1536 to 512 to 4 output neurons. Trained with AdamW optimizer (lr=0.0001, weight_decay=0.02), CrossEntropyLoss with class weights and extensive data augmentations including random crops, flips, rotations, brightness/contrast adjustments, gamma corrections, noise, and dropouts.
+An EfficientNet-B3 architecture (`EfficientNet-B3_50_epochs`) with pre-trained weights for transfer learning, custom classifier with 2 dropout layers. Trained with AdamW optimizer, CrossEntropyLoss and data augmentations including random crops, flips, rotations, brightness/contrast adjustments, gamma corrections, noise, and dropouts.
 
 ## Training the Models
 
