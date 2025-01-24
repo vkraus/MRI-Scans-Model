@@ -185,23 +185,26 @@ plt.show()
 
 | **Rank** | **Model Name**                                      | **Accuracy (%)** | **Notes**                               |
 |----------|-----------------------------------------------------|------------------|-----------------------------------------|
-| 1        | BaselineCNN_HEM_20epochs_16batch                    | 98.05           | Highest accuracy achieved with HEM and smaller batch size. |
-| 2        | BaselineCNN_HEM_20epochs                            | 97.81           | High performance with HEM over 20 epochs. |
-| 3        | BaselineCNN_CrossEntropyLoss_AddedConvMinusDropout  | 97.58           | Added convolutional layer, dropout removed for better results. |
-| 4        | BaselineCNN_CrossEntropyLoss_Dropout_10             | 97.34           | Reduced dropout probability (`p=0.1`). |
-| 5        | BaselineCNN                                         | 97.19           | Standard baseline model performance. |
-| 6        | BaselineCNN_CrossEntropyLoss_AddedConv              | 97.11           | Improved feature extraction with added convolutional layer. |
-| 7        | BaselineCNN_CrossEntropyLoss_Reduced_Drop           | 96.56           | Moderate dropout reduction improved generalization. |
-| 8        | BaselineCNN_WeightedRandomSampler                   | 96.25           | Weighted sampling for class prioritization. |
-| 9        | BaselineCNN_CrossEntropyLoss                        | 94.84           | Dropout layers included for better generalization. |
-| 10       | KerasModel                                          | 94.69           | Inspired by Keras sequential architecture. |
-| 11       | EfficientNet-B3_50_epochs                           | 94.53           | EfficientNet-B3 with custom classifier. |
-| 12       | BaselineCNN_CrossEntropyLoss_50epochs               | 94.14           | Extended training time (50 epochs). |
-| 13       | BaselineCNN_HEM_20epochs_64batch_lrate              | 92.42           | Larger batch size with learning rate adjustment. |
-| 14       | ModelByGPT                                          | 89.53           | Moderately complex GPT-generated model. |
-| 15       | StudyModel_Halved                                   | 84.45           | Simplified version of StudyModel. |
-| 16       | BaselineCNN_HEM_15epochs                            | 48.83           | Reduced epochs, significantly lower performance. |
-| 17       | BaselineCNN_HEM_20epochs_32batch_lrate              | 13.44           | Poor accuracy due to unsuitable configuration. |
+| 1        | ResNet_10epochs                                     | 99.97           | Exceptional performance with ResNet trained for 10 epochs. |
+| 2        | BaselineCNN_HEM_20epochs_16batch                    | 98.05           | Highest accuracy achieved with HEM and smaller batch size. |
+| 3        | BaselineCNN_HEM_20epochs                            | 97.81           | High performance with HEM over 20 epochs. |
+| 4        | BaselineCNN_CrossEntropyLoss_AddedConvMinusDropout  | 97.58           | Added convolutional layer, dropout removed for better results. |
+| 5        | BaselineCNN_CrossEntropyLoss_Dropout_10             | 97.34           | Reduced dropout probability (`p=0.1`). |
+| 6        | BaselineCNN                                         | 97.19           | Standard baseline model performance. |
+| 7        | BaselineCNN_CrossEntropyLoss_AddedConv              | 97.11           | Improved feature extraction with added convolutional layer. |
+| 8        | BaselineCNN_CrossEntropyLoss_Reduced_Drop           | 96.56           | Moderate dropout reduction improved generalization. |
+| 9        | BaselineCNN_WeightedRandomSampler                   | 96.25           | Weighted sampling for class prioritization. |
+| 10       | BaselineCNN_CrossEntropyLoss                        | 94.84           | Dropout layers included for better generalization. |
+| 11       | KerasModel                                          | 94.69           | Inspired by Keras sequential architecture. |
+| 12       | EfficientNet-B3_50_epochs                           | 94.53           | EfficientNet-B3 with custom classifier. |
+| 13       | BaselineCNN_CrossEntropyLoss_50epochs               | 94.14           | Extended training time (50 epochs). |
+| 14       | ResNet_20epochs                                     | 92.97           | ResNet with strong performance trained for 20 epochs. |
+| 15       | BaselineCNN_HEM_20epochs_64batch_lrate              | 92.42           | Larger batch size with learning rate adjustment. |
+| 16       | ModelByGPT                                          | 89.53           | Moderately complex GPT-generated model. |
+| 17       | StudyModel_Halved                                   | 84.45           | Simplified version of StudyModel. |
+| 18       | BaselineCNN_HEM_15epochs                            | 48.83           | Reduced epochs, significantly lower performance. |
+| 19       | BaselineCNN_HEM_20epochs_32batch_lrate              | 13.44           | Poor accuracy due to unsuitable configuration. |
+
 
 > **Note**: Accuracy values reflect the performance on the test dataset after training under specific configurations.
 
