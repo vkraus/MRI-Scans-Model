@@ -1,0 +1,160 @@
+#Adding Hard Example Mining to learing
+#Štěpán Fojtík
+N_CLASSES = df_train['label'].nunique()
+
+class ImageDataset(Dataset):
+    def __init__(self, dataframe):
+        self.dataframe = dataframe
+        
+    def __len__(self):
+        return len(self.dataframe)
+    
+    def __getitem__(self, idx):
+        image = self.dataframe.iloc[idx]["img_arr"] # Get the label from the df
+        label = self.dataframe.iloc[idx]["label"] # Get the img numpy array from the df
+        # The CNN requires we add a channel dimension i.e. (128, 128) -> (1, 128, 128)
+        image = torch.tensor(image, dtype=torch.float32).unsqueeze(0)
+        label = torch.tensor(label, dtype=torch.long)
+        return image, label
+
+class BaselineCNN(nn.Module):
+    def __init__(self):
+        super(BaselineCNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.batchnorm1 = nn.BatchNorm2d(num_features=32)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(64 * 32 * 32, 128)
+        self.out = nn.Linear(128, N_CLASSES)
+        
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = self.batchnorm1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool2(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.out(x)
+        return x
+
+# Hyperparameters
+learning_rate = 0.001
+NEPOCHS = 15
+batch_size = 32
+
+train_dataset = ImageDataset(df_train)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+def train_model_with_hem(model, loader, optimizer, num_epochs=NEPOCHS):
+    criterion = nn.CrossEntropyLoss(reduction='none')  # Calculate loss per sample
+    train_losses = []
+    
+    for epoch in tqdm.tqdm(range(num_epochs), total=num_epochs):
+        running_loss = 0.0
+        hard_examples = []
+
+        for i, data in enumerate(loader, 0):
+            inputs, labels = data[0], data[1]
+            optimizer.zero_grad()
+
+            outputs = model(inputs)
+            losses = criterion(outputs, labels)  # Per-sample loss
+
+            # Hard Example Mining: select top-k hardest samples
+            k = int(0.2 * len(losses))  # Use top 20% hardest examples
+            hard_indices = torch.topk(losses, k=k).indices
+            hard_inputs = inputs[hard_indices]
+            hard_labels = labels[hard_indices]
+
+            # Compute loss for hard examples only
+            hard_outputs = model(hard_inputs)
+            hard_loss = criterion(hard_outputs, hard_labels).mean()
+
+            hard_loss.backward()
+            optimizer.step()
+
+            running_loss += hard_loss.item()
+
+        epoch_loss = running_loss / len(loader)
+        train_losses.append(epoch_loss)
+        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+
+    print('Finished Training')
+    return model, train_losses
+
+model = BaselineCNN()
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+model, train_losses = train_model_with_hem(model, train_loader, optimizer)
+
+plt.plot(np.arange(1, NEPOCHS + 1), train_losses) #Optimizing plot creation, no more dedicated epochs
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.show()
+
+def predict(m, dl, device):
+    m.eval()
+    predictions = []
+    true_labels = []
+
+    with torch.no_grad():
+        for images, labels in dl:
+            images = images
+            outputs = m(images)
+            _, preds = torch.max(outputs, 1)
+            predictions.extend(preds.cpu().numpy())
+            true_labels.extend(labels.cpu().numpy())
+
+    return predictions, true_labels
+
+def result_summary(predictions, true_labels):
+    accuracy = accuracy_score(true_labels, predictions)
+    print(f'Accuracy: {accuracy:.4f}')
+
+    conf_matrix = confusion_matrix(true_labels, predictions)
+    print('Confusion Matrix:')
+    print(conf_matrix)
+    # Precision, Recall, F1 Score
+    #class_report = classification_report(true_labels, predictions, target_names=['Class 0', 'Class 1', 'Class 2', 'Class 3'])
+    #print('Classification Report:')
+    #print(class_report)
+# Lets display some basic summary statistics to see how we did
+# Note: this is dreadful practice to evaluate on the training data but this won't be our
+# final model and is just for demonstration purposes!
+predictions, true_labels = predict(model, train_loader, device)
+result_summary(predictions, true_labels)
+test_dataset = ImageDataset(df_test)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+predictions_test, test_labels = predict(model, test_loader, device)
+
+result_summary(predictions_test, test_labels)
+#Outcome: At first the loss was to big so I changed the number of epochs to 15. The overall computing time is shorter, at an higher accuracy with given hyperparametrs, 
+# change over original code is 15 epochs instead of 10 with accuracy:
+##Accuracy: 0.9844
+#[[161   0   1   8]
+# [  0  14   0   1]
+# [  0   0 630   4]
+# [  0   0   6 448]]
+#The time for computing iterration is lover at cca 36s/it and overall computing time was also lover even with more epochs.
+#When giving 20 Epoches or giving lower larning rate at 0.0001 the accuracy of the model is lower, with both these parameters being used the accuracy is at:
+#Accuracy: 0.9812
+#Confusion Matrix:
+#[[160   0   6   6]
+# [  0  13   0   2]
+# [  0   0 631   3]
+# [  0   0   7 452]]
+#When changing batch size to 16 the learning rate per iterration lasts longer at cca 46s/it with lower accuracy at:
+#Accuracy: 0.9680
+#Confusion Matrix:
+#[[153   0   1  18]
+# [  0  13   0   2]
+# [  0   0 617  17]
+# [  0   0   3 456]]
+#When changing batchsize to 64 the model has relativly same speed at 35s/it and same accuracy as with bachsize 32 learning rate 0,0001 and epochs 20 at:
+#[[160   0   7   5]
+# [  0  14   0   1]
+# [  0   0 633   1]
+# [  0   0  10 449]]
+#However it is overall faster computing because of lower amount of epochs

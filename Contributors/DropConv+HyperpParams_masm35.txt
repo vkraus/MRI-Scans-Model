@@ -1,0 +1,275 @@
+#Adding Dropout and Convolutional Layer, changing hyperparameters
+#Martina Maslikova
+
+#At first my labels were not compatible with function nn.CrossEntropyLoss, therefore i had to make sure labels are in range
+print(f"Original Labels: {df_train['label'].unique()}")
+N_CLASSES = df_train['label'].nunique()
+print(f"Original N_CLASSES: {N_CLASSES}")
+# Ensure labels are in range [0, N_CLASSES-1]
+label_mapping = {label: idx for idx, label in enumerate(sorted(df_train['label'].unique()))}
+print(f"Label Mapping: {label_mapping}")
+df_train['label'] = df_train['label'].map(label_mapping)
+print(f"Updated Labels: {df_train['label'].unique()}")
+
+#First attempt: Applying dropout, Result: worse accuracy than the original model
+# Define the dataset
+class ImageDataset(Dataset):
+    def __init__(self, dataframe):
+        self.dataframe = dataframe
+       
+    def __len__(self):
+        return len(self.dataframe)
+   
+    def __getitem__(self, idx):
+        image = self.dataframe.iloc[idx]["img_arr"]  # Get the image array
+        label = self.dataframe.iloc[idx]["label"]  # Get the label
+        # The CNN requires we add a channel dimension i.e. (128, 128) -> (1, 128, 128)
+        image = torch.tensor(image, dtype=torch.float32).unsqueeze(0)
+        label = torch.tensor(label, dtype=torch.long)
+        return image, label
+
+# Define the CNN model with dropout
+class BaselineCNN(nn.Module):
+    def __init__(self, n_classes):
+        super(BaselineCNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.batchnorm1 = nn.BatchNorm2d(num_features=32)
+        self.dropout1 = nn.Dropout(p=0.3)  # Dropout after the first conv block
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.batchnorm2 = nn.BatchNorm2d(num_features=64)
+        self.dropout2 = nn.Dropout(p=0.4)  # Dropout after the second conv block
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(64 * 32 * 32, 128)
+        self.dropout3 = nn.Dropout(p=0.5)  # Dropout before the output layer
+        self.out = nn.Linear(128, n_classes)
+       
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = self.batchnorm1(x)
+        x = self.dropout1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool2(x)
+        x = self.batchnorm2(x)
+        x = self.dropout2(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.dropout3(x)
+        x = self.out(x)
+        return x
+
+# Training function
+def train_model(model, loader, optimizer, num_epochs=10):
+    criterion = nn.CrossEntropyLoss()
+    train_losses = []
+
+    for epoch in tqdm.tqdm(range(num_epochs), total=num_epochs):
+        model.train()  # Enable dropout
+        running_loss = 0.0
+
+        for i, data in enumerate(loader, 0):
+            # Move data to the device
+            inputs, labels = data[0].to(device, dtype=torch.float32), data[1].to(device, dtype=torch.long)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+        
+        epoch_loss = running_loss / len(loader)
+        train_losses.append(epoch_loss)
+        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+
+    print('Finished Training')
+    return model, train_losses
+
+# Training the model for 32 epochs
+NEPOCHS = 32  # Increase the number of epochs
+learning_rate = 0.001  # Ensure learning rate is defined
+batch_size = 32
+
+model = BaselineCNN(n_classes=N_CLASSES).to(device)
+optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+model, train_losses = train_model(model, train_loader, optimizer, num_epochs=NEPOCHS)
+
+Accuracy: 0.9320
+Confusion Matrix:
+[[126   0   4  42]
+ [  0   2   0  13]
+ [  0   0 622  12]
+ [  0   0  16 443]]
+
+#Second attempt:  added number of NEPOCHS, Result: worse than original model but a little bit better than first attempt
+# Training the model for 50 epochs
+NEPOCHS = 50  # Increase the number of epochs
+learning_rate = 0.001  # Ensure learning rate is defined
+batch_size = 32
+
+Accuracy: 0.9375
+Confusion Matrix:
+[[124   0   2  46]
+ [  0   8   0   7]
+ [  0   0 616  18]
+ [  0   0   7 452]]
+
+#Third attempt: removed some dropout layers and the result was a bit more accurate, still not better than the original
+# Define the CNN model with dropout
+class BaselineCNN(nn.Module):
+    def __init__(self, n_classes):
+        super(BaselineCNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.batchnorm1 = nn.BatchNorm2d(num_features=32)
+        # Removed dropout here to retain feature learning capacity
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.batchnorm2 = nn.BatchNorm2d(num_features=64)
+        self.dropout2 = nn.Dropout(p=0.2)  # Reduced dropout in convolutional blocks
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(64 * 32 * 32, 128)
+        self.dropout3 = nn.Dropout(p=0.3)  # Moderate dropout for dense layers
+        self.out = nn.Linear(128, n_classes)
+       
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = self.batchnorm1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool2(x)
+        x = self.batchnorm2(x)
+        x = self.dropout2(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.dropout3(x)
+        x = self.out(x)
+        return x
+ 
+# Training the model for 32 epochs, these hyperparameters turned out to be best
+NEPOCHS = 32  # Increase the number of epochs
+learning_rate = 0.001  # Ensure learning rate is defined
+batch_size = 32
+
+Accuracy: 0.9656
+Confusion Matrix:
+[[159   0   8   5]
+ [  0  12   1   2]
+ [  0   0 634   0]
+ [  1   0  27 431]]
+
+ #Fourth attempt: reduced the dropout probabilities to very low values (p=0.1)
+ class BaselineCNN(nn.Module):
+    def __init__(self, n_classes):
+        super(BaselineCNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.batchnorm1 = nn.BatchNorm2d(num_features=32)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.batchnorm2 = nn.BatchNorm2d(num_features=64)
+        # Remove dropout in convolutional layers
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(64 * 32 * 32, 128)
+        self.dropout3 = nn.Dropout(p=0.1)  # Very low dropout for dense layer
+        self.out = nn.Linear(128, n_classes)
+       
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = self.batchnorm1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool2(x)
+        x = self.batchnorm2(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.dropout3(x)
+        x = self.out(x)
+        return x
+# Training the model for 32 epochs
+NEPOCHS = 32  # Increase the number of epochs
+learning_rate = 0.001  # Ensure learning rate is defined
+batch_size = 32
+
+#Fifth attempt: added another convolutional layer, kept one low dropout for dense layer → accuracy a bit better than with the original model
+class BaselineCNN(nn.Module):
+    def __init__(self, n_classes):
+        super(BaselineCNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.batchnorm1 = nn.BatchNorm2d(num_features=32)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.batchnorm2 = nn.BatchNorm2d(num_features=64)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # Additional layer
+        self.pool3 = nn.MaxPool2d(2, 2)
+        self.batchnorm3 = nn.BatchNorm2d(num_features=128)
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(128 * 16 * 16, 128)
+        self.dropout3 = nn.Dropout(p=0.1)  # Low dropout for dense layer
+        self.out = nn.Linear(128, n_classes)
+       
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = self.batchnorm1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool2(x)
+        x = self.batchnorm2(x)
+        x = F.relu(self.conv3(x))
+        x = self.pool3(x)
+        x = self.batchnorm3(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.dropout3(x)
+        x = self.out(x)
+        return x
+        
+Accuracy: 0.9797
+Confusion Matrix:
+[[161   0   3   8]
+ [  0  15   0   0]
+ [  0   0 629   5]
+ [  2   0   8 449]]
+
+ #Sixth attempt: added convolutional layers, removed dropout, the best result, therefore overfitting is not a significant issue here
+ class BaselineCNN(nn.Module):
+    def __init__(self, n_classes):
+        super(BaselineCNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.batchnorm1 = nn.BatchNorm2d(num_features=32)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.batchnorm2 = nn.BatchNorm2d(num_features=64)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # Additional layer
+        self.pool3 = nn.MaxPool2d(2, 2)
+        self.batchnorm3 = nn.BatchNorm2d(num_features=128)
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(128 * 16 * 16, 128)
+        self.out = nn.Linear(128, n_classes)
+       
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = self.batchnorm1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool2(x)
+        x = self.batchnorm2(x)
+        x = F.relu(self.conv3(x))
+        x = self.pool3(x)
+        x = self.batchnorm3(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.out(x)
+        return x
+        
+Accuracy: 0.9836
+Confusion Matrix:
+[[162   0   5   5]
+ [  0  14   0   1]
+ [  0   0 632   2]
+ [  0   0   8 451]]
+
+ Conclusion: model without any dropout performs better than with dropout, it suggests that overfitting may not be a significant issue, or the dropout layers are hindering the learning process.
