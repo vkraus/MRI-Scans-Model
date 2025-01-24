@@ -67,6 +67,8 @@ A moderately complex CNN (`ModelOdGPT`) with three convolutional layers and drop
 
 A ResNet-50-based model (`AdvancedCNN`) fine-tuned for grayscale image classification, with a modified first convolutional layer and a frozen backbone for transfer learning.
 
+An EfficientNet-B3 architecture (`EfficientNet-B3_50_epochs`) with pre-trained weights for transfer learning, custom classifier with 2 dropout layers (p=0.4), transitions from 1536 to 512 to 4 output neurons. Trained with AdamW optimizer (lr=0.0001, weight_decay=0.02), CrossEntropyLoss with class weights and extensive data augmentations including random crops, flips, rotations, brightness/contrast adjustments, gamma corrections, noise, and dropouts.
+
 ## Training the Models
 
 This code defines a training pipeline for a neural network model using a custom dataset and dataloader. It implements a simple training loop with support for tracking losses and updating model parameters using backpropagation.
@@ -193,12 +195,13 @@ plt.show()
 | 8        | BaselineCNN_WeightedRandomSampler                   | 96.25           | Weighted sampling for class prioritization. |
 | 9        | BaselineCNN_CrossEntropyLoss                        | 94.84           | Dropout layers included for better generalization. |
 | 10       | KerasModel                                          | 94.69           | Inspired by Keras sequential architecture. |
-| 11       | BaselineCNN_CrossEntropyLoss_50epochs               | 94.14           | Extended training time (50 epochs). |
-| 12       | BaselineCNN_HEM_20epochs_64batch_lrate              | 92.42           | Larger batch size with learning rate adjustment. |
-| 13       | ModelByGPT                                          | 89.53           | Moderately complex GPT-generated model. |
-| 14       | StudyModel_Halved                                   | 84.45           | Simplified version of StudyModel. |
-| 15       | BaselineCNN_HEM_15epochs                            | 48.83           | Reduced epochs, significantly lower performance. |
-| 16       | BaselineCNN_HEM_20epochs_32batch_lrate              | 13.44           | Poor accuracy due to unsuitable configuration. |
+| 11       | EfficientNet-B3_50_epochs                           | 94.53           | EfficientNet-B3 with custom classifier. |
+| 12       | BaselineCNN_CrossEntropyLoss_50epochs               | 94.14           | Extended training time (50 epochs). |
+| 13       | BaselineCNN_HEM_20epochs_64batch_lrate              | 92.42           | Larger batch size with learning rate adjustment. |
+| 14       | ModelByGPT                                          | 89.53           | Moderately complex GPT-generated model. |
+| 15       | StudyModel_Halved                                   | 84.45           | Simplified version of StudyModel. |
+| 16       | BaselineCNN_HEM_15epochs                            | 48.83           | Reduced epochs, significantly lower performance. |
+| 17       | BaselineCNN_HEM_20epochs_32batch_lrate              | 13.44           | Poor accuracy due to unsuitable configuration. |
 
 > **Note**: Accuracy values reflect the performance on the test dataset after training under specific configurations.
 
